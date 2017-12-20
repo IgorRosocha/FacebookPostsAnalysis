@@ -26,4 +26,4 @@
 
 ## License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License**. For more information about the license, please see [here](https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/LICENSE).
