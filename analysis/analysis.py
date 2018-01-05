@@ -8,11 +8,11 @@ def create_request(url, session):
     """Create a request and return the json."""
     r = session.get(url)
     if r.status_code == 404:
-        click.echo('GitHub: ERROR 404 - Not Found')
+        click.echo('Facebook: ERROR 404 - Not Found')
         exit(5)
 
     if r.status_code == 401:
-        click.echo('GitHub: ERROR 401 - Bad credentials')
+        click.echo('Facebook: ERROR 401 - Bad credentials')
         exit(4)
 
     if r.status_code != 200:
@@ -42,10 +42,12 @@ def build_token(app_id, app_secret):
     return token
 
 
-def build_url(group_id, access_token):
+def build_url(group_id, access_token, since_date, until_date):
     url = "https://graph.facebook.com/v2.9/{}/feed".format(group_id) +\
           "/?limit={}&access_token={}".format(100, access_token) +\
-          "&fields=message,link,created_time,type,name,id," +\
+          "&since={}".format(since_date) +\
+          "&until={}".format(until_date) +\
+          "&fields=message,created_time,name,id," +\
           "comments.limit(0).summary(true),shares,reactions" +\
           ".limit(0).summary(true),from"
     return url
@@ -73,18 +75,23 @@ def cli(ctx, config):
 
 @cli.command()
 @click.argument('type', nargs=1, type=click.Choice(['group', 'page']))
+@click.option('--until', default='',
+              help='Date until when to analyse Facebook posts.')
+@click.option('--since', default='',
+              help='Date since when to analyse Facebook posts.')
 @click.pass_context
-def get_posts(ctx, type):
+def get_posts(ctx, type, **configuration):
     session = ctx.obj['session']
+    until_date = configuration['until']
+    since_date = configuration['since']
 
     config_credentials = read_config(ctx)
     token = build_token(config_credentials[0], config_credentials[1])
-    url = build_url(config_credentials[2], token)
 
     if type == 'group':
-        url = build_url(config_credentials[2], token)
+        url = build_url(config_credentials[2], token, since_date, until_date)
     elif type == 'page':
-        url = build_url(config_credentials[3], token)
+        url = build_url(config_credentials[3], token, since_date, until_date)
 
     posts = create_request(url, session)
 
