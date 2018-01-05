@@ -13,7 +13,7 @@
 - [ ] Main functionalities will be available as CLI options using **Click Library**,
 - [ ] Project will contain full documentation using **Sphinx**,
 - [ ] Project will contain tests using **pytest**,
-- [ ] Project will be publish to **TestPyPI/PyPI**.
+- [ ] Project will be published to **TestPyPI/PyPI**.
 
 ### Analysis:
 
@@ -26,4 +26,4 @@
 
 ## License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License**. For more information about the license, please see [here](https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/LICENSE).
