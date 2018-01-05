@@ -71,13 +71,20 @@ def cli(ctx, config):
 
 
 @cli.command()
+@click.argument('type', nargs=1, type=click.Choice(['group', 'page']))
 @click.pass_context
-def get_posts(ctx):
+def get_posts(ctx, type):
     session = ctx.obj['session']
 
     config_credentials = read_config(ctx)
     token = build_token(config_credentials[0], config_credentials[1])
     url = build_url(config_credentials[2], token)
+
+    if type == 'group':
+        url = build_url(config_credentials[2], token)
+    elif type == 'page':
+        url = build_url(config_credentials[3], token)
+
     posts = create_request(url, session)
 
     for post in posts['data']:
@@ -89,7 +96,11 @@ def get_posts(ctx):
             post_message = ''
 
         post_created = ['created_time']
-        post_author = post['from']['name']
+
+        if 'from' in post:
+            post_author = post['from']['name']
+        else:
+            post_author = ''
 
         if 'reactions' in post:
             post_reactions = post['reactions']['summary']['total_count']
