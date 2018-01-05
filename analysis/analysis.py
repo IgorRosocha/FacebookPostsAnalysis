@@ -1,6 +1,7 @@
 import requests
 import click
 import configparser
+import datetime
 
 
 def create_request(url, session):
@@ -93,14 +94,15 @@ def get_posts(ctx, type):
         if 'message' in post:
             post_message = post['message']
         else:
-            post_message = ''
+            post_message = 'No message.'
 
-        post_created = ['created_time']
+        post_created = datetime.datetime.strptime(post['created_time'], '%Y-%m-%dT%H:%M:%S+0000')
+        post_created = post_created + datetime.timedelta(hours=+1)  # timezone fix
 
         if 'from' in post:
             post_author = post['from']['name']
         else:
-            post_author = ''
+            post_author = 'Author unavailable.'
 
         if 'reactions' in post:
             post_reactions = post['reactions']['summary']['total_count']
