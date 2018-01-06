@@ -2,6 +2,7 @@ import requests
 import click
 import configparser
 import datetime
+import re
 
 
 def create_request(url, session):
@@ -42,9 +43,22 @@ def build_token(app_id, app_secret):
     return token
 
 
-def build_url(group_id, access_token, since_date, until_date):
+def build_url_group(group_id, access_token, since_date, until_date, paging):
     url = "https://graph.facebook.com/v2.9/{}/feed".format(group_id) +\
           "/?limit={}&access_token={}".format(100, access_token) +\
+          "&since={}".format(since_date) +\
+          "&until={}".format(until_date) +\
+          "&__paging_token={}".format(paging) +\
+          "&fields=message,created_time,name,id," +\
+          "comments.limit(0).summary(true),shares,reactions" +\
+          ".limit(0).summary(true),from"
+    return url
+
+
+def build_url_page(page_id, access_token, paging, since_date, until_date):
+    url = "https://graph.facebook.com/v2.9/{}/feed".format(page_id) +\
+          "/?limit={}&access_token={}".format(100, access_token) + \
+          "&after={}".format(paging) +\
           "&since={}".format(since_date) +\
           "&until={}".format(until_date) +\
           "&fields=message,created_time,name,id," +\
@@ -85,49 +99,63 @@ def get_posts(ctx, type, **configuration):
     until_date = configuration['until']
     since_date = configuration['since']
 
+    paging = ''
+    next_page = True
+
     config_credentials = read_config(ctx)
     token = build_token(config_credentials[0], config_credentials[1])
 
-    if type == 'group':
-        url = build_url(config_credentials[2], token, since_date, until_date)
-    elif type == 'page':
-        url = build_url(config_credentials[3], token, since_date, until_date)
+    while next_page:
+        if type == 'group':
+            url = build_url_group(config_credentials[2], token, since_date, until_date, paging)
+        elif type == 'page':
+            url = build_url_page(config_credentials[3], token, paging, since_date, until_date)
 
-    posts = create_request(url, session)
+        posts = create_request(url, session)
 
-    for post in posts['data']:
-        post_id = post['id']
+        for post in posts['data']:
+            post_id = post['id']
 
-        if 'message' in post:
-            post_message = post['message']
+            if 'message' in post:
+                post_message = post['message']
+            else:
+                post_message = 'No message.'
+
+            post_created = datetime.datetime.strptime(post['created_time'], '%Y-%m-%dT%H:%M:%S+0000')
+            post_created = post_created + datetime.timedelta(hours=+1)  # timezone fix
+
+            if 'from' in post:
+                post_author = post['from']['name']
+            else:
+                post_author = 'Author unavailable.'
+
+            if 'reactions' in post:
+                post_reactions = post['reactions']['summary']['total_count']
+            else:
+                post_reactions = 0
+
+            if 'comments' in post:
+                post_comments = post['comments']['summary']['total_count']
+            else:
+                post_comments = 0
+
+            if 'shares' in post:
+                post_shares = post['shares']['count']
+            else:
+                post_shares = 0
+
+            print('ID: {0}\nMESSAGE: {1}\nCREATED: {2}\nAUTHOR: {3}\nREACTIONS: {4}\nCOMMENTS: {5}\nSHARES: {6}\n'
+                  .format(post_id, post_message, post_created, post_author, post_reactions, post_comments, post_shares))
+
+        if 'paging' in posts:
+            if type == 'group':
+                next_url = posts['paging']['next']
+                until_date = next_url[next_url.index('until=') + len('until='):next_url.index('&__paging_token=')]
+                paging = next_url[next_url.index('paging_token=') + len('paging_token='):]
+            elif type == 'page':
+                paging = posts['paging']['cursors']['after']
         else:
-            post_message = 'No message.'
-
-        post_created = datetime.datetime.strptime(post['created_time'], '%Y-%m-%dT%H:%M:%S+0000')
-        post_created = post_created + datetime.timedelta(hours=+1)  # timezone fix
-
-        if 'from' in post:
-            post_author = post['from']['name']
-        else:
-            post_author = 'Author unavailable.'
-
-        if 'reactions' in post:
-            post_reactions = post['reactions']['summary']['total_count']
-        else:
-            post_reactions = 0
-
-        if 'comments' in post:
-            post_comments = post['comments']['summary']['total_count']
-        else:
-            post_comments = 0
-
-        if 'shares' in post:
-            post_shares = post['shares']['count']
-        else:
-            post_shares = 0
-
-        print('ID: {0}\nMESSAGE: {1}\nCREATED: {2}\nAUTHOR: {3}\nREACTIONS: {4}\nCOMMENTS: {5}\nSHARES: {6}\n'
-              .format(post_id, post_message, post_created, post_author, post_reactions, post_comments, post_shares))
+            next_page = False
 
 
 if __name__ == '__main__':
