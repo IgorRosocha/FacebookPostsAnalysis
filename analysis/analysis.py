@@ -2,7 +2,7 @@ import requests
 import click
 import configparser
 import datetime
-import re
+import csv
 
 
 def create_request(url, session):
@@ -98,64 +98,75 @@ def get_posts(ctx, type, **configuration):
     session = ctx.obj['session']
     until_date = configuration['until']
     since_date = configuration['since']
-
     paging = ''
     next_page = True
 
     config_credentials = read_config(ctx)
     token = build_token(config_credentials[0], config_credentials[1])
 
-    while next_page:
-        if type == 'group':
-            url = build_url_group(config_credentials[2], token, since_date, until_date, paging)
-        elif type == 'page':
-            url = build_url_page(config_credentials[3], token, paging, since_date, until_date)
+    with open('analysis.csv', 'w') as csvfile:
+        fieldnames = ['ID', 'Message', 'Date created', 'Author',
+                      'Number of reactions', 'Number of comments',
+                      'Number of shares']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
 
-        posts = create_request(url, session)
-
-        for post in posts['data']:
-            post_id = post['id']
-
-            if 'message' in post:
-                post_message = post['message']
-            else:
-                post_message = 'No message.'
-
-            post_created = datetime.datetime.strptime(post['created_time'], '%Y-%m-%dT%H:%M:%S+0000')
-            post_created = post_created + datetime.timedelta(hours=+1)  # timezone fix
-
-            if 'from' in post:
-                post_author = post['from']['name']
-            else:
-                post_author = 'Author unavailable.'
-
-            if 'reactions' in post:
-                post_reactions = post['reactions']['summary']['total_count']
-            else:
-                post_reactions = 0
-
-            if 'comments' in post:
-                post_comments = post['comments']['summary']['total_count']
-            else:
-                post_comments = 0
-
-            if 'shares' in post:
-                post_shares = post['shares']['count']
-            else:
-                post_shares = 0
-
-            print('ID: {0}\nMESSAGE: {1}\nCREATED: {2}\nAUTHOR: {3}\nREACTIONS: {4}\nCOMMENTS: {5}\nSHARES: {6}\n'
-                  .format(post_id, post_message, post_created, post_author, post_reactions, post_comments, post_shares))
-
-        if 'paging' in posts:
+        while next_page:
             if type == 'group':
-                next_url = posts['paging']['next']
-                until_date = next_url[next_url.index('until=') + len('until='):next_url.index('&__paging_token=')]
-                paging = next_url[next_url.index('paging_token=') + len('paging_token='):]
+                url = build_url_group(config_credentials[2], token, since_date, until_date, paging)
             elif type == 'page':
-                paging = posts['paging']['cursors']['after']
-        else:
-            next_page = False
+                url = build_url_page(config_credentials[3], token, paging, since_date, until_date)
+
+            posts = create_request(url, session)
+
+            for post in posts['data']:
+                post_id = post['id']
+
+                if 'message' in post:
+                    post_message = post['message']
+                else:
+                    post_message = 'No message.'
+
+                post_created = datetime.datetime.strptime(post['created_time'], '%Y-%m-%dT%H:%M:%S+0000')
+                post_created = post_created + datetime.timedelta(hours=+1)  # timezone fix
+                post_created = post_created.strftime('%Y-%m-%d %H:%M:%S')  # convert back to string because of csv
+
+                if 'from' in post:
+                    post_author = post['from']['name']
+                else:
+                    post_author = 'Author unavailable.'
+
+                if 'reactions' in post:
+                    post_reactions = post['reactions']['summary']['total_count']
+                else:
+                    post_reactions = 0
+
+                if 'comments' in post:
+                    post_comments = post['comments']['summary']['total_count']
+                else:
+                    post_comments = 0
+
+                if 'shares' in post:
+                    post_shares = post['shares']['count']
+                else:
+                    post_shares = 0
+
+                writer.writerow({'ID': post_id, 'Message': post_message, 'Date created': post_created,
+                                 'Author': post_author, 'Number of reactions': post_reactions,
+                                 'Number of comments': post_comments, 'Number of shares': post_shares})
+
+                print('ID: {0}\nMESSAGE: {1}\nCREATED: {2}\nAUTHOR: {3}\nREACTIONS: {4}\nCOMMENTS: {5}\nSHARES: {6}\n'
+                      .format(post_id, post_message, post_created, post_author, post_reactions, post_comments, post_shares))
+
+            if 'paging' in posts:
+                if type == 'group':
+                    next_url = posts['paging']['next']
+                    until_date = next_url[next_url.index('until=') + len('until='):next_url.index('&__paging_token=')]
+                    paging = next_url[next_url.index('paging_token=') + len('paging_token='):]
+                elif type == 'page':
+                    paging = posts['paging']['cursors']['after']
+            else:
+                next_page = False
 
 
 if __name__ == '__main__':
