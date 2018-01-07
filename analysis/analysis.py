@@ -48,7 +48,7 @@ def build_url_group(group_id, access_token, since_date, until_date, paging):
           "/?limit={}&access_token={}".format(100, access_token) +\
           "&since={}".format(since_date) +\
           "&until={}".format(until_date) +\
-          "&__paging_token={}".format(paging) +\
+          "&__paging_token={}".format(paging) + \
           "&fields=message,created_time,name,id," +\
           "comments.limit(0).summary(true),shares,reactions" +\
           ".limit(0).summary(true),from"
@@ -60,11 +60,34 @@ def build_url_page(page_id, access_token, paging, since_date, until_date):
           "/?limit={}&access_token={}".format(100, access_token) + \
           "&after={}".format(paging) +\
           "&since={}".format(since_date) +\
-          "&until={}".format(until_date) +\
+          "&until={}".format(until_date) + \
           "&fields=message,created_time,name,id," +\
           "comments.limit(0).summary(true),shares,reactions" +\
           ".limit(0).summary(true),from"
     return url
+
+
+def get_reactions(url, session):
+    reactions = ['LIKE', 'LOVE', 'HAHA', 'WOW', 'SAD', 'ANGRY']
+    reactions_count = {}
+
+    for reaction in reactions:
+        reactions_url = url + "&fields=reactions.type({}).limit(0).summary(total_count)".format(reaction)
+        data = create_request(reactions_url, session)['data']
+
+        dataset = set()
+        for post in data:
+            post_id = post['id']
+            count = post['reactions']['summary']['total_count']
+            dataset.add((post_id, count))
+
+        for post_id, count in dataset:
+            if post_id in reactions_count:
+                reactions_count[post_id] = reactions_count[post_id] + (count,)
+            else:
+                reactions_count[post_id] = (count,)
+
+    return reactions_count
 
 
 def print_version(ctx, param, value):
@@ -100,14 +123,16 @@ def get_posts(ctx, type, **configuration):
     since_date = configuration['since']
     paging = ''
     next_page = True
+    csv_id = 0
 
     config_credentials = read_config(ctx)
     token = build_token(config_credentials[0], config_credentials[1])
 
     with open('analysis.csv', 'w') as csvfile:
         fieldnames = ['ID', 'Message', 'Date created', 'Author',
-                      'Number of reactions', 'Number of comments',
-                      'Number of shares']
+                      'Number of reactions', 'Number of Likes', 'Number of Loves',
+                      'Number of Hahas', 'Number of Wows', 'Number of Sads',
+                      'Number of Angrys', 'Number of comments', 'Number of shares']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -118,6 +143,7 @@ def get_posts(ctx, type, **configuration):
                 url = build_url_page(config_credentials[3], token, paging, since_date, until_date)
 
             posts = create_request(url, session)
+            reactions = get_reactions(url, session)
 
             for post in posts['data']:
                 post_id = post['id']
@@ -151,12 +177,22 @@ def get_posts(ctx, type, **configuration):
                 else:
                     post_shares = 0
 
-                writer.writerow({'ID': post_id, 'Message': post_message, 'Date created': post_created,
+                reactions_data = reactions[post_id]
+
+                writer.writerow({'ID': csv_id, 'Message': post_message, 'Date created': post_created,
                                  'Author': post_author, 'Number of reactions': post_reactions,
+                                 'Number of Likes': reactions_data[0], 'Number of Loves': reactions_data[1],
+                                 'Number of Hahas': reactions_data[2], 'Number of Wows': reactions_data[3],
+                                 'Number of Sads': reactions_data[4], 'Number of Angrys': reactions_data[5],
                                  'Number of comments': post_comments, 'Number of shares': post_shares})
 
-                print('ID: {0}\nMESSAGE: {1}\nCREATED: {2}\nAUTHOR: {3}\nREACTIONS: {4}\nCOMMENTS: {5}\nSHARES: {6}\n'
-                      .format(post_id, post_message, post_created, post_author, post_reactions, post_comments, post_shares))
+                print('ID: {0}\nMESSAGE: {1}\nCREATED: {2}\nAUTHOR: {3}\nTOTAL REACTIONS: {4}\nLIKES: {5}\n'
+                      'LOVES: {6}\nHAHAS: {7}\nWOWS: {8}\nSADS: {9}\nANGRYS: {10}\nCOMMENTS: {11}\n'
+                      'SHARES: {12}\n'.format(csv_id, post_message, post_created, post_author, post_reactions,
+                                              reactions_data[0], reactions_data[1], reactions_data[2],
+                                              reactions_data[3], reactions_data[4], reactions_data[5],
+                                              post_comments, post_shares))
+                csv_id += 1
 
             if 'paging' in posts:
                 if type == 'group':
