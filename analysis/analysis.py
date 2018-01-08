@@ -3,6 +3,7 @@ import click
 import configparser
 import datetime
 import csv
+import nbformat as nbf
 
 
 def create_request(url, session):
@@ -88,6 +89,55 @@ def get_reactions(url, session):
                 reactions_count[post_id] = (count,)
 
     return reactions_count
+
+
+def create_notebook(entity_id):
+    nb = nbf.v4.new_notebook()
+    text = '# Facebook Posts Analysis\n' \
+           'Analysis based on data gathered from Facebook page/group.\n\n' \
+           'For more information, please visit https://github.com/IgorRosocha/FacebookPostsAnalysis\n\n' \
+           'ID of analyzed group: {}'.format(entity_id)
+
+    imports = 'import pandas as pd'
+
+    number_header = '### 1. Total number of posts:'
+    number_of_posts = 'results = pd.read_csv("analysis.csv", index_col=None)\n' \
+                      'number_of_posts = results["ID"].count()\n' \
+                      'print("Total number of posts: {}".format(number_of_posts))'
+
+    popular_header = '### 2. Most popular posts:\n\n'
+    popular_posts = 'def find_most(column_name):\n' \
+                    '    most = results[["ID", column_name, "Author", "Date created", "Message"]]\n' \
+                    '    most = most.sort_values(by=[column_name], ascending=False)[:5].reset_index(drop=True)\n' \
+                    '    most.index = most.index + 1\n' \
+                    '    return most'
+
+    reactions_subheader = '**a) Posts with the highest number of reactions:**'
+    most_reactions = 'find_most("Number of reactions")'
+
+    shares_subheader = '**b) Posts with the highest number of shares:**'
+    most_shares = 'find_most("Number of shares")'
+
+    comments_subheader = '**c) Posts with the highest number of comments:**'
+    most_comments = 'find_most("Number of comments")'
+
+    nb['cells'] = [nbf.v4.new_markdown_cell(text),
+                   nbf.v4.new_code_cell(imports),
+                   nbf.v4.new_markdown_cell(number_header),
+                   nbf.v4.new_code_cell(number_of_posts),
+                   nbf.v4.new_markdown_cell(popular_header),
+                   nbf.v4.new_code_cell(popular_posts),
+                   nbf.v4.new_markdown_cell(reactions_subheader),
+                   nbf.v4.new_code_cell(most_reactions),
+                   nbf.v4.new_markdown_cell(shares_subheader),
+                   nbf.v4.new_code_cell(most_shares),
+                   nbf.v4.new_markdown_cell(comments_subheader),
+                   nbf.v4.new_code_cell(most_comments)]
+
+    notebook_name = 'analysis.ipynb'
+
+    with open(notebook_name, 'w') as f:
+        nbf.write(nb, f)
 
 
 def print_version(ctx, param, value):
@@ -203,6 +253,11 @@ def get_posts(ctx, type, **configuration):
                     paging = posts['paging']['cursors']['after']
             else:
                 next_page = False
+
+    if type == 'group':
+        create_notebook(config_credentials[2])
+    elif type == 'page':
+        create_notebook(config_credentials[3])
 
 
 if __name__ == '__main__':
