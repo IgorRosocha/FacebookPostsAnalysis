@@ -170,9 +170,12 @@ def create_notebook(entity_id):
              'visit https://github.com/IgorRosocha/FacebookPostsAnalysis\n\n' \
              'ID of analyzed group/page: {}'.format(entity_id)
 
-    images = '<img src="static/images/Python.png" style="width: 100px; float: left;"/>\n\n' \
-             '<img src="static/images/Facebook.png" style="width: 100px; float: left;"/>\n\n' \
-             '<img src="static/images/Pandas.png" style="width: 400px; float: left;"/>'
+    images = '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+             'analysis/static/images/Python.png?raw=true" style="width: 100px; float: left;"/>\n\n' \
+             '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+             'analysis/static/images/Facebook.png?raw=true" style="width: 100px; float: left;"/>\n\n' \
+             '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+             'analysis/static/images/Pandas.png?raw=true" style="width: 400px; float: left;"/>'
 
     imports = 'import pandas as pd\n' \
               'import matplotlib\n' \
@@ -193,29 +196,35 @@ def create_notebook(entity_id):
                     '    return most'
 
     reactions_subheader = '**a) Posts with the highest number of reactions:**\n\n' \
-                          '<img src="static/images/Reactions.png" style="width: 400px; float: left;"/>'
+                          '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+                          'analysis/static/images/Reactions.png?raw=true" style="width: 400px; float: left;"/>'
     most_reactions = 'find_most("Number of reactions")'
 
     likes_subheader = '**b) Posts with the highest number of likes:**\n\n' \
-                      '<img src="static/images/Like.png" style="width: 400px; float: left;"/>'
+                      '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+                      'analysis/static/images/Like.png?raw=true" style="width: 400px; float: left;"/>'
     most_likes = 'find_most("Number of Likes")'
 
     shares_subheader = '**c) Posts with the highest number of shares:**\n\n' \
-                       '<img src="static/images/Share.png" style="width: 400px; float: left;"/>'
+                       '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+                       'analysis/static/images/Share.png?raw=true" style="width: 400px; float: left;"/>'
     most_shares = 'find_most("Number of shares")'
 
     comments_subheader = '**d) Posts with the highest number of comments:**\n\n' \
-                         '<img src="static/images/Comment.png" style="width: 400px; float: left;"/>'
+                         '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+                         'analysis/static/images/Comment.png?raw=true" style="width: 400px; float: left;"/>'
     most_comments = 'find_most("Number of comments")'
 
     unpopular_header = '### 2. Most unpopular posts:'
 
     angrys_subheader = '**a) Posts with the highest number of ANGRY reactions:**\n\n' \
-                       '<img src="static/images/Angry.png" style="width: 400px; float: left;"/>'
+                       '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+                       'analysis/static/images/Angry.png?raw=true" style="width: 400px; float: left;"/>'
     most_angrys = 'find_most("Number of Angrys")'
 
     sads_subheader = '**a) Posts with the highest number of SAD reactions:**\n\n' \
-                     '<img src="static/images/Sad.png" style="width: 400px; float: left;"/>'
+                     '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
+                     'analysis/static/images/Sad.png?raw=true" style="width: 400px; float: left;"/>'
     most_sads = 'find_most("Number of Sads")'
 
     months_header = '### 3. Months with the biggest activity'
@@ -361,9 +370,9 @@ def get_posts(ctx, entity, **configuration):
         print('Analyzing posts until {}.'.format(now.strftime('%Y-%m-%d')))
 
     if entity == 'group':
-        csv_name = 'analysis_csv_{}'.format(config_credentials[2])
+        csv_name = 'analysis_csv_{}.csv'.format(config_credentials[2])
     elif entity == 'page':
-        csv_name = 'analysis_csv_{}'.format(config_credentials[3])
+        csv_name = 'analysis_csv_{}.csv'.format(config_credentials[3])
 
     with open(csv_name, 'w') as csvfile:
         fieldnames = ['ID', 'Message', 'Date created', 'Author',
