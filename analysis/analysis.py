@@ -4,6 +4,7 @@ import configparser
 import datetime
 import csv
 import nbformat as nbf
+import time
 
 
 def create_request(url, session):
@@ -93,35 +94,86 @@ def get_reactions(url, session):
 
 def create_notebook(entity_id):
     nb = nbf.v4.new_notebook()
-    text = '# Facebook Posts Analysis\n' \
-           'Analysis based on data gathered from Facebook page/group.\n\n' \
-           'For more information, please visit https://github.com/IgorRosocha/FacebookPostsAnalysis\n\n' \
-           'ID of analyzed group: {}'.format(entity_id)
+    header = '# Facebook Posts Analysis\n' \
+             'Analysis based on data gathered from Facebook page/group.\n\n' \
+             'For more information, please visit https://github.com/IgorRosocha/FacebookPostsAnalysis\n\n' \
+             'ID of analyzed group/page: {}'.format(entity_id)
 
-    imports = 'import pandas as pd'
+    images = '<img src="static/images/Python.png" style="width: 100px; float: left;"/>\n\n' \
+             '<img src="static/images/Facebook.png" style="width: 100px; float: left;"/>\n\n' \
+             '<img src="static/images/Pandas.png" style="width: 400px; float: left;"/>'
+
+    imports = 'import pandas as pd\n' \
+              'import matplotlib\n' \
+              'import numpy as np\n' \
+              'import calendar\n\n' \
+              '%matplotlib inline'
 
     number_header = '### 1. Total number of posts:'
     number_of_posts = 'results = pd.read_csv("analysis.csv", index_col=None)\n' \
                       'number_of_posts = results["ID"].count()\n' \
                       'print("Total number of posts: {}".format(number_of_posts))'
 
-    popular_header = '### 2. Most popular posts:\n\n'
+    popular_header = '### 2. Most popular posts:'
     popular_posts = 'def find_most(column_name):\n' \
                     '    most = results[["ID", column_name, "Author", "Date created", "Message"]]\n' \
                     '    most = most.sort_values(by=[column_name], ascending=False)[:5].reset_index(drop=True)\n' \
                     '    most.index = most.index + 1\n' \
                     '    return most'
 
-    reactions_subheader = '**a) Posts with the highest number of reactions:**'
+    reactions_subheader = '**a) Posts with the highest number of reactions:**\n\n' \
+                          '<img src="static/images/Reactions.png" style="width: 400px; float: left;"/>'
     most_reactions = 'find_most("Number of reactions")'
 
-    shares_subheader = '**b) Posts with the highest number of shares:**'
+    likes_subheader = '**b) Posts with the highest number of likes:**\n\n' \
+                      '<img src="static/images/Like.png" style="width: 400px; float: left;"/>'
+    most_likes = 'find_most("Number of Likes")'
+
+    shares_subheader = '**c) Posts with the highest number of shares:**\n\n' \
+                       '<img src="static/images/Share.png" style="width: 400px; float: left;"/>'
     most_shares = 'find_most("Number of shares")'
 
-    comments_subheader = '**c) Posts with the highest number of comments:**'
+    comments_subheader = '**d) Posts with the highest number of comments:**\n\n' \
+                         '<img src="static/images/Comment.png" style="width: 400px; float: left;"/>'
     most_comments = 'find_most("Number of comments")'
 
-    nb['cells'] = [nbf.v4.new_markdown_cell(text),
+    unpopular_header = '### 2. Most unpopular posts:'
+
+    angrys_subheader = '**a) Posts with the highest number of ANGRY reactions:**\n\n' \
+                       '<img src="static/images/Angry.png" style="width: 400px; float: left;"/>'
+    most_angrys = 'find_most("Number of Angrys")'
+
+    sads_subheader = '**a) Posts with the highest number of SAD reactions:**\n\n' \
+                     '<img src="static/images/Sad.png" style="width: 400px; float: left;"/>'
+    most_sads = 'find_most("Number of Sads")'
+
+    months_header = '### 3. Months with the biggest activity'
+
+    biggest_activity = 'activity = results[["Number of reactions", "Number of comments", "Date created"]]\n' \
+                       'activity = activity.assign(Ratio=activity["Number of reactions"] + ' \
+                       'activity["Number of comments"])\n' \
+                       'activity["Date created"] = pd.to_datetime(activity["Date created"])\n' \
+                       'activity.sort_values(by="Date created")\n' \
+                       'activity["mnth_yr"] = activity["Date created"].apply(lambda x: x.strftime("%b-%Y"))\n' \
+                       'activity = activity.groupby(["mnth_yr"], sort=False).sum()\n' \
+                       'activity = activity.drop(["Number of comments", "Number of reactions"], 1)'
+
+    graph = 'if activity["Ratio"].max() < 250:\n' \
+            '    ticks = 10\n' \
+            'elif activity["Ratio"].max() < 2500:\n' \
+            '    ticks = 100\n' \
+            'else:\n' \
+            '    ticks = 1000\n\n' \
+            'graph = activity.plot.bar(color="#8b9dc3", title="Months with the biggest activity", ' \
+            'figsize=(15,5), legend=True)\n' \
+            'graph.set_xlabel("Month")\n' \
+            'graph.set_ylabel("Activity Ratio")\n' \
+            'graph.yaxis.set_ticks(np.arange(0,activity["Ratio"].max(),ticks))\n' \
+            'graph.set_facecolor("#f7f7f7")\n' \
+            'graph.grid("on", which="major", axis="y")'
+
+    nb['cells'] = [nbf.v4.new_markdown_cell(header),
+                   nbf.v4.new_markdown_cell(images),
                    nbf.v4.new_code_cell(imports),
                    nbf.v4.new_markdown_cell(number_header),
                    nbf.v4.new_code_cell(number_of_posts),
@@ -129,15 +181,32 @@ def create_notebook(entity_id):
                    nbf.v4.new_code_cell(popular_posts),
                    nbf.v4.new_markdown_cell(reactions_subheader),
                    nbf.v4.new_code_cell(most_reactions),
+                   nbf.v4.new_markdown_cell(likes_subheader),
+                   nbf.v4.new_code_cell(most_likes),
                    nbf.v4.new_markdown_cell(shares_subheader),
                    nbf.v4.new_code_cell(most_shares),
                    nbf.v4.new_markdown_cell(comments_subheader),
-                   nbf.v4.new_code_cell(most_comments)]
+                   nbf.v4.new_code_cell(most_comments),
+                   nbf.v4.new_markdown_cell(unpopular_header),
+                   nbf.v4.new_markdown_cell(angrys_subheader),
+                   nbf.v4.new_code_cell(most_angrys),
+                   nbf.v4.new_markdown_cell(sads_subheader),
+                   nbf.v4.new_code_cell(most_sads),
+                   nbf.v4.new_markdown_cell(months_header),
+                   nbf.v4.new_code_cell(biggest_activity),
+                   nbf.v4.new_code_cell(graph)]
 
-    notebook_name = 'analysis.ipynb'
+    notebook_name = 'analysis_' + entity_id + '.ipynb'
 
     with open(notebook_name, 'w') as f:
         nbf.write(nb, f)
+
+
+def process_time(start_time):
+    seconds = time.time() - start_time
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return h, m, s
 
 
 def print_version(ctx, param, value):
@@ -161,22 +230,52 @@ def cli(ctx, config):
 
 
 @cli.command()
-@click.argument('type', nargs=1, type=click.Choice(['group', 'page']))
+@click.argument('entity', nargs=1, type=click.Choice(['group', 'page']))
 @click.option('--until', default='',
               help='Date until when to analyse Facebook posts.')
 @click.option('--since', default='',
               help='Date since when to analyse Facebook posts.')
+@click.option('--year', default='',
+              help='Year to analyse Facebook posts.')
 @click.pass_context
-def get_posts(ctx, type, **configuration):
+def get_posts(ctx, entity, **configuration):
     session = ctx.obj['session']
     until_date = configuration['until']
     since_date = configuration['since']
+    year = configuration['year']
+
     paging = ''
     next_page = True
+
     csv_id = 0
+    progress = 0
+    now = datetime.datetime.now()
 
     config_credentials = read_config(ctx)
     token = build_token(config_credentials[0], config_credentials[1])
+
+    start_time = time.time()
+    print('FacebookPostsAnalysis v0.1')
+
+    if year != '':
+        if int(year) < 2004:
+            print('[WRONG YEAR] Facebook has been launched in 2004!')
+            exit(10)
+        elif int(year) > now.year:
+            print('[WRONG YEAR] It`s only year {} at the moment!'.format(now.year))
+            exit(10)
+        else:
+            since_date = str(year) + '-01-01'
+            until_date = str(year) + '-12-31'
+
+    if since_date != '' and until_date != '':
+        print('Analyzing posts since {} until {}.'.format(since_date, until_date))
+    elif since_date != '' and until_date == '':
+        print('Analyzing posts since {} until {}.'.format(since_date, now.strftime('%Y-%m-%d')))
+    elif since_date == '' and until_date != '':
+        print('Analyzing posts until {}.'.format(until_date))
+    else:
+        print('Analyzing posts until {}.'.format(now.strftime('%Y-%m-%d')))
 
     with open('analysis.csv', 'w') as csvfile:
         fieldnames = ['ID', 'Message', 'Date created', 'Author',
@@ -187,9 +286,9 @@ def get_posts(ctx, type, **configuration):
         writer.writeheader()
 
         while next_page:
-            if type == 'group':
+            if entity == 'group':
                 url = build_url_group(config_credentials[2], token, since_date, until_date, paging)
-            elif type == 'page':
+            elif entity == 'page':
                 url = build_url_page(config_credentials[3], token, paging, since_date, until_date)
 
             posts = create_request(url, session)
@@ -236,28 +335,34 @@ def get_posts(ctx, type, **configuration):
                                  'Number of Sads': reactions_data[4], 'Number of Angrys': reactions_data[5],
                                  'Number of comments': post_comments, 'Number of shares': post_shares})
 
-                print('ID: {0}\nMESSAGE: {1}\nCREATED: {2}\nAUTHOR: {3}\nTOTAL REACTIONS: {4}\nLIKES: {5}\n'
-                      'LOVES: {6}\nHAHAS: {7}\nWOWS: {8}\nSADS: {9}\nANGRYS: {10}\nCOMMENTS: {11}\n'
-                      'SHARES: {12}\n'.format(csv_id, post_message, post_created, post_author, post_reactions,
-                                              reactions_data[0], reactions_data[1], reactions_data[2],
-                                              reactions_data[3], reactions_data[4], reactions_data[5],
-                                              post_comments, post_shares))
+                progress += 1
+                if progress % 100 == 0:
+                    print('[PROGRESS]: {} posts analyzed successfully!'.format(progress))
+
                 csv_id += 1
 
             if 'paging' in posts:
-                if type == 'group':
+                if entity == 'group':
                     next_url = posts['paging']['next']
                     until_date = next_url[next_url.index('until=') + len('until='):next_url.index('&__paging_token=')]
                     paging = next_url[next_url.index('paging_token=') + len('paging_token='):]
-                elif type == 'page':
+                elif entity == 'page':
                     paging = posts['paging']['cursors']['after']
             else:
                 next_page = False
 
-    if type == 'group':
+    if entity == 'group':
         create_notebook(config_credentials[2])
-    elif type == 'page':
+    elif entity == 'page':
         create_notebook(config_credentials[3])
+
+    formatted_time = process_time(start_time)
+    print('\nFacebookPostsAnalysis has finished the analysis!\n'
+          '[RESULT] {} posts were successfully analyzed!\n'.format(progress) +
+          'Process time: %d:%02d:%02d\n\n' % (formatted_time[0], formatted_time[1], formatted_time[2]) +
+          'To see the results, open respective Notebook using Jupyter!\n'
+          'For more information, please check the documentation or visit '
+          'https://github.com/IgorRosocha/FacebookPostsAnalysis!')
 
 
 if __name__ == '__main__':
