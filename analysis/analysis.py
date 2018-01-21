@@ -42,10 +42,35 @@ def read_config(ctx):
         click.echo("Configuration file not found!")
         exit(3)
 
-    app_id = config_file['credentials']['app_id']
-    app_secret = config_file['credentials']['app_secret']
-    group_id = config_file['facebook']['group_id']
-    page_id = config_file['facebook']['page_id']
+    if config_file.has_option('credentials', 'app_id'):
+        app_id = config_file['credentials']['app_id']
+    else:
+        print('No Facebook APP ID has been provided! Please fill in the APP ID in your configuration file!')
+        exit(10)
+
+    if config_file.has_option('credentials', 'app_secret'):
+        app_secret = config_file['credentials']['app_secret']
+    else:
+        print('No Facebook APP SECRET has been provided! Please fill in the APP SECRET in your configuration file!')
+        exit(10)
+
+    entity = ctx.obj['entity']
+
+    if entity == 'group':
+        if config_file.has_option('facebook', 'group_id'):
+            group_id = config_file['facebook']['group_id']
+            page_id = ''
+        else:
+            print('No Facebook GROUP ID has been provided! Please fill in the GROUP ID in your configuration file!')
+            exit(10)
+
+    if entity == 'page':
+        if config_file.has_option('facebook', 'page_id'):
+            page_id = config_file['facebook']['page_id']
+            group_id = ''
+        else:
+            print('No Facebook PAGE ID has been provided! Please fill in the PAGE ID in your configuration file!')
+            exit(10)
 
     return app_id, app_secret, group_id, page_id
 
@@ -294,6 +319,8 @@ def cli(ctx, config):
               help='Year to analyse Facebook posts.')
 @click.pass_context
 def get_posts(ctx, entity, **configuration):
+    ctx.obj['entity'] = entity
+
     session = ctx.obj['session']
     until_date = configuration['until']
     since_date = configuration['since']
