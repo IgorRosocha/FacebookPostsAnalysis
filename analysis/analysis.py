@@ -166,7 +166,8 @@ def create_notebook(entity_id):
     nb = nbf.v4.new_notebook()
     header = '# Facebook Posts Analysis\n' \
              'Analysis based on data gathered from Facebook page/group.\n\n' \
-             'For more information, please visit https://github.com/IgorRosocha/FacebookPostsAnalysis\n\n' \
+             'For more information, please check the documentation or ' \
+             'visit https://github.com/IgorRosocha/FacebookPostsAnalysis\n\n' \
              'ID of analyzed group/page: {}'.format(entity_id)
 
     images = '<img src="static/images/Python.png" style="width: 100px; float: left;"/>\n\n' \
@@ -180,7 +181,7 @@ def create_notebook(entity_id):
               '%matplotlib inline'
 
     number_header = '### 1. Total number of posts:'
-    number_of_posts = 'results = pd.read_csv("analysis.csv", index_col=None)\n' \
+    number_of_posts = 'results = pd.read_csv("analysis_csv_{}.csv", index_col=None)\n'.format(entity_id) + \
                       'number_of_posts = results["ID"].count()\n' \
                       'print("Total number of posts: {}".format(number_of_posts))'
 
@@ -359,7 +360,12 @@ def get_posts(ctx, entity, **configuration):
     else:
         print('Analyzing posts until {}.'.format(now.strftime('%Y-%m-%d')))
 
-    with open('analysis.csv', 'w') as csvfile:
+    if entity == 'group':
+        csv_name = 'analysis_csv_{}'.format(config_credentials[2])
+    elif entity == 'page':
+        csv_name = 'analysis_csv_{}'.format(config_credentials[3])
+
+    with open(csv_name, 'w') as csvfile:
         fieldnames = ['ID', 'Message', 'Date created', 'Author',
                       'Number of reactions', 'Number of Likes', 'Number of Loves',
                       'Number of Hahas', 'Number of Wows', 'Number of Sads',
