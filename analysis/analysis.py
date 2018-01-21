@@ -223,7 +223,7 @@ def create_notebook(entity_id):
                        'activity = activity.assign(Ratio=activity["Number of reactions"] + ' \
                        'activity["Number of comments"])\n' \
                        'activity["Date created"] = pd.to_datetime(activity["Date created"])\n' \
-                       'activity.sort_values(by="Date created")\n' \
+                       'activity = activity.sort_values(by="Date created")\n' \
                        'activity["mnth_yr"] = activity["Date created"].apply(lambda x: x.strftime("%b-%Y"))\n' \
                        'activity = activity.groupby(["mnth_yr"], sort=False).sum()\n' \
                        'activity = activity.drop(["Number of comments", "Number of reactions"], 1)'
@@ -382,7 +382,7 @@ def get_posts(ctx, entity, **configuration):
                 if 'message' in post:
                     post_message = post['message']
                 else:
-                    post_message = 'No message.'
+                    post_message = '[MULTIMEDIA CONTENT] No message.'
 
                 post_created = datetime.datetime.strptime(post['created_time'], '%Y-%m-%dT%H:%M:%S+0000')
                 post_created = post_created + datetime.timedelta(hours=+1)  # timezone fix
