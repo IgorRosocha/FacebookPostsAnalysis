@@ -8,7 +8,12 @@ import time
 
 
 def create_request(url, session):
-    """Create a request and return the json."""
+    """
+    Create a Facebook request and return the json.
+
+    :param url: URL of Facebook group/page
+    :param session: Facebook session
+    """
     r = session.get(url)
     if r.status_code == 404:
         click.echo('Facebook: ERROR 404 - Not Found')
@@ -25,6 +30,11 @@ def create_request(url, session):
 
 
 def read_config(ctx):
+    """
+    Read the credentials and ID of Facebook group/page from configuration file.
+
+    :param ctx: Context, which is automatically passed by Click library
+    """
     config = ctx.obj['config']
     config_file = configparser.ConfigParser()
 
@@ -41,11 +51,26 @@ def read_config(ctx):
 
 
 def build_token(app_id, app_secret):
+    """
+    Build a Facebook access token from your APP ID and APP SECRET.
+
+    :param app_id: Your Facebook APP ID
+    :param app_secret: Your Facebook APP SECRET
+    """
     token = app_id + '|' + app_secret
     return token
 
 
 def build_url_group(group_id, access_token, since_date, until_date, paging):
+    """
+    Build url of a Facebook group.
+
+    :param group_id: ID of Facebook group
+    :param access_token: Your Facebook access token
+    :param since_date: Date since when to analyse Facebook posts
+    :param until_date: Date until when to analyse Facebook posts
+    :param paging: Paging token
+    """
     url = "https://graph.facebook.com/v2.9/{}/feed".format(group_id) +\
           "/?limit={}&access_token={}".format(100, access_token) +\
           "&since={}".format(since_date) +\
@@ -58,6 +83,15 @@ def build_url_group(group_id, access_token, since_date, until_date, paging):
 
 
 def build_url_page(page_id, access_token, paging, since_date, until_date):
+    """
+    Build url of a Facebook page.
+
+    :param page_id: ID of Facebook page
+    :param access_token: Your Facebook access token
+    :param since_date: Date since when to analyse Facebook posts
+    :param until_date: Date until when to analyse Facebook posts
+    :param paging: Paging token
+    """
     url = "https://graph.facebook.com/v2.9/{}/feed".format(page_id) +\
           "/?limit={}&access_token={}".format(100, access_token) + \
           "&after={}".format(paging) +\
@@ -70,6 +104,12 @@ def build_url_page(page_id, access_token, paging, since_date, until_date):
 
 
 def get_reactions(url, session):
+    """
+    Get the count of unique reactions of Facebook post.
+
+    :param url: URL of Facebook group/page
+    :param session: Facebook session
+    """
     reactions = ['LIKE', 'LOVE', 'HAHA', 'WOW', 'SAD', 'ANGRY']
     reactions_count = {}
 
@@ -93,6 +133,11 @@ def get_reactions(url, session):
 
 
 def create_notebook(entity_id):
+    """
+    Create a Jupyter Notebook, containing the full analysis of Facebook group/page.
+
+    :param entity_id: ID of Facebook group/page
+    """
     nb = nbf.v4.new_notebook()
     header = '# Facebook Posts Analysis\n' \
              'Analysis based on data gathered from Facebook page/group.\n\n' \
@@ -203,6 +248,11 @@ def create_notebook(entity_id):
 
 
 def process_time(start_time):
+    """
+    Format the process time of analysis.
+
+    :param start_time: Time when the analysis have started
+    """
     seconds = time.time() - start_time
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
@@ -210,7 +260,12 @@ def process_time(start_time):
 
 
 def print_version(ctx, param, value):
-    """Print version of the app."""
+    """Print version of the app (default click implementation).
+
+    :param ctx: Context, which is automatically passed by Click library
+    :param param: Version parameter
+    :param value: Version value
+    """
     if not value or ctx.resilient_parsing:
         return
     click.echo('FacebookPostsAnalysis, version 0.1')
