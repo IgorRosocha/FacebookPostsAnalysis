@@ -319,7 +319,7 @@ def cli(ctx, config):
     ctx.obj['config'] = config
 
 
-@cli.command()
+@cli.command(help='Get posts of the specified group/page.')
 @click.argument('entity', nargs=1, type=click.Choice(['group', 'page']))
 @click.option('--until', default='',
               help='Date until when to analyse Facebook posts.')
@@ -462,5 +462,5 @@ def get_posts(ctx, entity, **configuration):
           'https://github.com/IgorRosocha/FacebookPostsAnalysis!')
 
 
-if __name__ == '__main__':
+def main():
     cli(obj={})
