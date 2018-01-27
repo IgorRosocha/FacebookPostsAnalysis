@@ -96,7 +96,7 @@ def build_url_group(group_id, access_token, since_date, until_date, paging):
     :param until_date: Date until when to analyse Facebook posts
     :param paging: Paging token
     """
-    url = "https://graph.facebook.com/v2.9/{}/feed".format(group_id) +\
+    url = "https://graph.facebook.com/v2.11/{}/feed".format(group_id) +\
           "/?limit={}&access_token={}".format(100, access_token) +\
           "&since={}".format(since_date) +\
           "&until={}".format(until_date) +\
@@ -117,7 +117,7 @@ def build_url_page(page_id, access_token, paging, since_date, until_date):
     :param until_date: Date until when to analyse Facebook posts
     :param paging: Paging token
     """
-    url = "https://graph.facebook.com/v2.9/{}/feed".format(page_id) +\
+    url = "https://graph.facebook.com/v2.11/{}/feed".format(page_id) +\
           "/?limit={}&access_token={}".format(100, access_token) + \
           "&after={}".format(paging) +\
           "&since={}".format(since_date) +\
