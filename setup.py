@@ -26,9 +26,9 @@ setup(
         'Environment :: Console'
     ],
     install_requires=[
-    	'jupyter',
     	'click>=6',
-    	'requests'
+    	'requests',
+        'nbformat'
     ],
     zip_safe=False,
     entry_points={
