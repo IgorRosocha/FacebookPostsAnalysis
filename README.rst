@@ -52,7 +52,7 @@ For more information about the usage of **FacebookPostsAnalysis**, please see th
 Documentation
 --------------
 
-For the full documentation, please visit `Readthedocs.io <http://labelord-igorrosocha.readthedocs.io/en/latest/>`__.
+For the full documentation, please visit `Readthedocs.io <http://facebookpostsanalysis.readthedocs.io/en/latest/index.html>`__.
 
 You can also build the documentation locally. Just follow these steps:
 
