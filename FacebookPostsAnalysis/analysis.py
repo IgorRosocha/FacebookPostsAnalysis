@@ -222,7 +222,7 @@ def create_notebook(entity_id):
                        'analysis/static/images/Angry.png?raw=true" style="width: 400px; float: left;"/>'
     most_angrys = 'find_most("Number of Angrys")'
 
-    sads_subheader = '**a) Posts with the highest number of SAD reactions:**\n\n' \
+    sads_subheader = '**b) Posts with the highest number of SAD reactions:**\n\n' \
                      '<img src="https://github.com/IgorRosocha/FacebookPostsAnalysis/blob/master/' \
                      'analysis/static/images/Sad.png?raw=true" style="width: 400px; float: left;"/>'
     most_sads = 'find_most("Number of Sads")'
@@ -463,4 +463,8 @@ def get_posts(ctx, entity, **configuration):
 
 
 def main():
+    """
+    Main function to run the cli.
+
+    """
     cli(obj={})
