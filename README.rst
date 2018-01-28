@@ -2,9 +2,31 @@
 FacebookPostsAnalysis
 =====================
 
-**FacebookPostsAnalysis** is a Python 3.6 application to analyze the posts of a Facebook open page/group (`MI-PYT@FIT CTU`_ semestral work)
+**FacebookPostsAnalysis** is a Python 3.6 application to analyze the posts of a Facebook open page/group (`MI-PYT@FIT CTU`_ semestral work).
+
+**FacebookPostsAnalysis** (`MI-PYT@FIT CTU`_ semestral work) is a Python 3.6 application to analyze the posts of a Facebook page or open group - total number of reactions, most liked posts, activity of users, and much more. All of the posts are exported into a .csv file, which can be opened with your preferred spreadsheet software, and then automatically analyzed using **Jupyter Notebook**.
+
+To see the example .csv file / notebook, please see the examples folder
 
 --------------------------------------------------------------------------------
+
+Installation
+-------------
+
+There are two ways how to install **FacebookPostsAnalysis**:
+
+1. Installation directly from TestPyPI, using the following command: 
+
+``python -m pip install --extra-index-url https://test.pypi.org/pypi FacebookPostsAnalysis``
+
+2. If any problem occurred, please follow these steps:
+	
+- Download **FacebookPostsAnalysis** directly from TestPyPI `here <https://testpypi.python.org/pypi/FacebookPostsAnalysis>`_.
+- Unpack the download .tar.gz file.
+- Use the following command in the labelord directory: ``python setup.py install``
+
+
+Please note that **FacebookPostsAnalysis** requires at least Python 3.6 to be installed to run properly!
 
 Documentation
 --------------
