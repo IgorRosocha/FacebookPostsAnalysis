@@ -14,11 +14,6 @@ setup(
     license='MIT',
     url='https://github.com/IgorRosocha/FacebookPostsAnalysis',
     packages=find_packages(),
-    package_data = {'analysis': [
-                        'static/examples/*',
-                        'static/images/*.png'
-        ]
-    },
     python_requires='~=3.6',
     classifiers=[
         'Intended Audience :: Developers',
