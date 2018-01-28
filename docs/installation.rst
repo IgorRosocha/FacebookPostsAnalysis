@@ -8,10 +8,11 @@ There are two ways how to install **FacebookPostsAnalysis**:
 .. code:: python
 
     python -m pip install --extra-index-url \
-    https://test.pypi.org/pypi IgorRosocha
+    https://testpypi.python.org/pypi FacebookPostsAnalysis
+    
 
 2. If any problem occurred, please follow these steps:
-	- Download **FacebookPostsAnalysis** directly from TestPyPI `here <https://testpypi.python.org/pypi/labelord-IgorRosocha>`_.
+	- Download **FacebookPostsAnalysis** directly from TestPyPI `here <https://testpypi.python.org/pypi/FacebookPostsAnalysis>`_.
 	- Unpack the download .tar.gz file.
 	- Use the following command in the FacebookPostsAnalysis directory:
 	
