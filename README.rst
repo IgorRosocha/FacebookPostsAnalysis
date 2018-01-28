@@ -4,7 +4,7 @@ FacebookPostsAnalysis
 
 **FacebookPostsAnalysis** (`MI-PYT@FIT CTU`_ semestral work) is a Python 3.6 application to analyze the posts of a Facebook page or open group - total number of reactions, most liked posts, activity of users, and much more. All of the posts are exported into a .csv file, which can be opened with your preferred spreadsheet software, and then automatically analyzed using **Jupyter Notebook**.
 
-To see the example .csv file / notebook, please see the examples folder.
+To see the example .csv file / notebook, please see the examples folder, containing analysis of `Python Developers <https://www.facebook.com/groups/251560641854558/about/>`_ Facebook group.
 
 --------------------------------------------------------------------------------
 
@@ -59,9 +59,8 @@ You can also build the documentation locally. Just follow these steps:
 1. Download **FacebookPostsAnalysis** and install it (in the main directory: ``python setup.py install``)
 2. Navigate to **docs** directory
 3. Run ``python -m pip install -r requirements.txt``
-4. Run ``pip install sphinx-click``
-5. Run ``make html`` and ``make doctest``
-6. You can find all of the .html files in _build/html directory
+4. Run ``make html``
+5. You can find all of the .html files in _build/html directory
 
 License
 -------
