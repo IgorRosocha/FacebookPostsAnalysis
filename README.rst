@@ -2,8 +2,6 @@
 FacebookPostsAnalysis
 =====================
 
-**FacebookPostsAnalysis** is a Python 3.6 application to analyze the posts of a Facebook open page/group (`MI-PYT@FIT CTU`_ semestral work).
-
 **FacebookPostsAnalysis** (`MI-PYT@FIT CTU`_ semestral work) is a Python 3.6 application to analyze the posts of a Facebook page or open group - total number of reactions, most liked posts, activity of users, and much more. All of the posts are exported into a .csv file, which can be opened with your preferred spreadsheet software, and then automatically analyzed using **Jupyter Notebook**.
 
 To see the example .csv file / notebook, please see the examples folder
