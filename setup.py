@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name='FacebookPostsAnalysis',
-    version='0.1',
+    version='0.1.2',
     description='Application to analyze the posts of a Facebook page/group.',
     long_description=long_description,
     author='Igor Rosocha',
