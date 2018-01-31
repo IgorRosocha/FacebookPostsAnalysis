@@ -336,7 +336,7 @@ def get_posts(ctx, entity, **configuration):
           'To see the results, open respective Notebook using Jupyter!\n'
           'For more information, please check the documentation or visit '
           'https://github.com/IgorRosocha/FacebookPostsAnalysis!')
-    
+
 
 def main():
     """
